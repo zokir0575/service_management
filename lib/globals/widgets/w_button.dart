@@ -80,9 +80,7 @@ class WButton extends StatelessWidget {
               : child ??
                   Text(
                     text,
-                    style: isDisabled
-                        ? greyStyle(context)
-                        : textStyle ??
+                    style: textStyle ??
                             whiteStyle(context).copyWith(
                                 fontSize: 16, fontWeight: FontWeight.w600),
                     textAlign: TextAlign.start,

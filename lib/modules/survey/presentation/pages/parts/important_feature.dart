@@ -3,6 +3,7 @@ import 'package:service_app/assets/color/colors.dart';
 import 'package:service_app/globals/widgets/w_button.dart';
 import 'package:service_app/modules/navigation/presentation/home.dart';
 import 'package:service_app/modules/navigation/presentation/navigator.dart';
+import 'package:service_app/modules/survey/presentation/pages/survey_result.dart';
 import 'package:service_app/utils/text_styles.dart';
 
 class ImportantFeature extends StatefulWidget {
@@ -40,7 +41,7 @@ class _ImportantFeatureState extends State<ImportantFeature> {
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             margin: const EdgeInsets.only(bottom: 12),
-            onTap: () => Navigator.pushAndRemoveUntil(context, fade(page: const NavigationScreen()), (route) => false),
+            onTap: () => Navigator.pushAndRemoveUntil(context, fade(page: const SurveyResultScreen()), (route) => false),
             color: lightPrimary2,
             textStyle: darkStyle(context)
                 .copyWith(fontWeight: FontWeight.w400, fontSize: 16),

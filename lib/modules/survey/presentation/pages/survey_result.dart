@@ -5,6 +5,7 @@ import 'package:service_app/assets/constants/app_icons.dart';
 import 'package:service_app/globals/widgets/w_button.dart';
 import 'package:service_app/modules/navigation/presentation/home.dart';
 import 'package:service_app/modules/navigation/presentation/navigator.dart';
+import 'package:service_app/utils/storage.dart';
 import 'package:service_app/utils/text_styles.dart';
 
 class SurveyResultScreen extends StatefulWidget {
@@ -60,8 +61,11 @@ class _SurveyResultScreenState extends State<SurveyResultScreen> {
     return Scaffold(
       bottomNavigationBar: _thirdComplete
           ? WButton(
-              onTap: () => Navigator.pushAndRemoveUntil(context,
-                  fade(page: const NavigationScreen()), (route) => false),
+              onTap: () {
+                StorageRepository.putBool(key: 'registered', value: true);
+                Navigator.pushAndRemoveUntil(context,
+                  fade(page: const NavigationScreen()), (route) => false);
+              },
               text: 'Continue',
               margin: EdgeInsets.fromLTRB(
                   16, 0, 16, MediaQuery.paddingOf(context).bottom + 12),
