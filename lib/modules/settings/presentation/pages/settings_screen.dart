@@ -113,7 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             onTap: ()async  {
                               StorageRepository.putBool(key: 'registered', value: false);
                               await DatabaseHelper.deleteAllServices();
-                              Navigator.pushAndRemoveUntil(context, fade( page: const OnBoardingScreen()), (route) => false);
+                              Navigator.of(context,rootNavigator: true).pushAndRemoveUntil( fade( page: const OnBoardingScreen()), (route) => false);
                             },
                             color: lightRed,
                             text: 'Delete',
