@@ -6,10 +6,15 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:jiffy/jiffy.dart';
 import 'package:service_app/assets/color/colors.dart';
 import 'package:service_app/assets/constants/app_icons.dart';
+import 'package:service_app/globals/bloc/date_picker/date_picker_bloc.dart';
+import 'package:service_app/globals/bloc/date_picker/date_picker_event.dart';
+import 'package:service_app/globals/bloc/date_picker/date_picker_state.dart';
 import 'package:service_app/globals/formatters/date_formatter.dart';
 import 'package:service_app/globals/source/database_helper.dart';
+import 'package:service_app/globals/widgets/cupertino_datepicker.dart';
 import 'package:service_app/globals/widgets/default_text_fileld.dart';
 import 'package:service_app/globals/widgets/keyboard_dismisser.dart';
 import 'package:service_app/globals/widgets/w_button.dart';
@@ -37,10 +42,13 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   late TextEditingController endController;
   late TextEditingController noteController;
   late ImagePickerBloc imagePickerBloc;
+  late DatePickerBloc datePickerBloc;
   String imagePath = '';
+  DateTime? selectedStartDate;
 
   @override
   void initState() {
+    datePickerBloc = DatePickerBloc();
     imagePickerBloc = ImagePickerBloc();
     nameController = TextEditingController();
     priceController = TextEditingController();
@@ -65,8 +73,13 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   @override
   Widget build(BuildContext context) {
     return KeyboardDismisser(
-      child: BlocProvider.value(
-        value: imagePickerBloc,
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider.value(
+            value: imagePickerBloc,
+          ),
+          BlocProvider.value(value: datePickerBloc),
+        ],
         child: Scaffold(
           appBar: AppBar(
             surfaceTintColor: Colors.transparent,
@@ -167,6 +180,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                   onChanged: (value) {
                     setState(() {});
                   },
+                  keyboardType: TextInputType.text,
                   title: 'Name of service',
                   hintText: 'Write down your name...',
                   controller: nameController,
@@ -197,21 +211,101 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                   onChanged: (value) {
                     setState(() {});
                   },
+                  keyboardType: TextInputType.text,
                   title: 'URL',
                   controller: urlController,
                 ),
                 const SizedBox(
                   height: 16,
                 ),
-                DefaultTextField(
-                  onChanged: (value) {
-                    setState(() {});
+                BlocBuilder<DatePickerBloc, DatePickerState>(
+                  builder: (context, state) {
+                    return DefaultTextField(
+                      readOnly: true,
+                      onTap: () {
+                        DateTime getOriginalDate(String date) {
+                          if (date.isNotEmpty) {
+                            return DateTime.parse(
+                                date.replaceAllMapped(
+                                  RegExp(r'(\d{2}).(\d{2}).(\d{4})'),
+                                      (match) => '${match[3]}-${match[2]}-${match[1]}',
+                                ));
+                          } else {
+                            return DateTime.now();
+                          }
+                        }
+
+                        DateTime originalDate = getOriginalDate(state.startDate);
+                        String formattedDateString =
+                            '${originalDate.year}-${originalDate.month.toString().padLeft(2, '0')}-${originalDate.day.toString().padLeft(2, '0')}';
+
+                        showCupertinoDatePicker(context, (date) {
+                          String formattedDate = Jiffy.parseFromDateTime(date)
+                              .format(pattern: 'dd/MM/yyyy');
+                          startController.text = formattedDate;
+                          selectedStartDate = date;
+                          context.read<DatePickerBloc>().add(
+                            PickedStartDate(date: formattedDate),
+                          );
+                        }, DateTime.parse(formattedDateString), );
+                      },
+                      onChanged: (value) {
+                        setState(() {});
+                      },
+                      hintText: '00/00/0000',
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [DateTextFormatter()],
+                      title: 'Start of subscription',
+                      controller: startController,
+                    );
                   },
-                  hintText: '00/00/0000',
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [DateTextFormatter()],
-                  title: 'Start of subscription',
-                  controller: startController,
+                ),
+                const SizedBox(height: 16),
+                BlocBuilder<DatePickerBloc, DatePickerState>(
+                  builder: (context, state) {
+                    return DefaultTextField(
+                      readOnly: true,
+                      onTap: () {
+                        DateTime getOriginalDate(String date) {
+                          if (date.isNotEmpty) {
+                            return DateTime.parse(
+                                date.replaceAllMapped(
+                                  RegExp(r'(\d{2}).(\d{2}).(\d{4})'),
+                                      (match) => '${match[3]}-${match[2]}-${match[1]}',
+                                ));
+                          } else {
+                            return DateTime.now();
+                          }
+                        }
+
+                        DateTime originalDate = getOriginalDate(state.endDate);
+                        String formattedDateString =
+                            '${originalDate.year}-${originalDate.month.toString().padLeft(2, '0')}-${originalDate.day.toString().padLeft(2, '0')}';
+
+                        showCupertinoDatePicker(
+                          context,
+                              (date) {
+                            String formattedDate = Jiffy.parseFromDateTime(date)
+                                .format(pattern: 'dd/MM/yyyy');
+                            endController.text = formattedDate;
+                            context.read<DatePickerBloc>().add(
+                              PickedEndDate(date: formattedDate),
+                            );
+                          },
+                          DateTime.parse(formattedDateString),
+                           minDate: selectedStartDate, // Set minimum date as selected start date
+                        );
+                      },
+                      onChanged: (value) {
+                        setState(() {});
+                      },
+                      hintText: '00/00/0000',
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [DateTextFormatter()],
+                      title: 'End of subscription',
+                      controller: endController,
+                    );
+                  },
                 ),
                 const SizedBox(
                   height: 16,
@@ -220,19 +314,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                   onChanged: (value) {
                     setState(() {});
                   },
-                  hintText: '00/00/0000',
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [DateTextFormatter()],
-                  title: 'End of subscription',
-                  controller: endController,
-                ),
-                const SizedBox(
-                  height: 16,
-                ),
-                DefaultTextField(
-                  onChanged: (value) {
-                    setState(() {});
-                  },
+                  keyboardType: TextInputType.text,
                   hintText: 'Write your note...',
                   title: 'Note',
                   height: 100,

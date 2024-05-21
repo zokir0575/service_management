@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:service_app/assets/color/colors.dart';
 
 class WBottomSheet extends StatelessWidget {
   final double borderRadius;
@@ -28,7 +29,7 @@ class WBottomSheet extends StatelessWidget {
       children: [
         Container(
           decoration: BoxDecoration(
-            color:Colors.purple,
+            color:white,
             borderRadius: BorderRadius.vertical(
               top: Radius.circular(borderRadius),
             ),
