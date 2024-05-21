@@ -6,7 +6,6 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 import 'package:service_app/assets/color/colors.dart';
 import 'package:service_app/assets/constants/app_icons.dart';
 import 'package:service_app/globals/formatters/date_formatter.dart';
@@ -38,7 +37,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   late TextEditingController endController;
   late TextEditingController noteController;
   late ImagePickerBloc imagePickerBloc;
-  String imagePath= '';
+  String imagePath = '';
 
   @override
   void initState() {
@@ -209,6 +208,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                     setState(() {});
                   },
                   hintText: '00/00/0000',
+                  keyboardType: TextInputType.number,
                   inputFormatters: [DateTextFormatter()],
                   title: 'Start of subscription',
                   controller: startController,
@@ -221,6 +221,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                     setState(() {});
                   },
                   hintText: '00/00/0000',
+                  keyboardType: TextInputType.number,
                   inputFormatters: [DateTextFormatter()],
                   title: 'End of subscription',
                   controller: endController,
@@ -295,7 +296,8 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                   start: start,
                   note: note);
               await DatabaseHelper.addService(model);
-              Navigator.pushAndRemoveUntil(context, fade(page: const NavigationScreen()), (route) => false);
+              Navigator.pushAndRemoveUntil(context,
+                  fade(page: const NavigationScreen()), (route) => false);
             },
             text: 'Add',
             margin: EdgeInsets.fromLTRB(
