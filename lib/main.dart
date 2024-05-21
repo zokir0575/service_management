@@ -4,27 +4,33 @@ import 'package:service_app/modules/navigation/presentation/home.dart';
 import 'package:service_app/modules/onboarding/presentation/pages/onboarding_screen.dart';
 import 'package:service_app/utils/storage.dart';
 
+import 'modules/splash/splash_screen.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await StorageRepository.getInstance();
 
-  runApp(const MyApp());
+  runApp(  MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+    MyApp({super.key});
 
-  // This widget is the root of your application.
+  final _navigatorKey = GlobalKey<NavigatorState>();
+
+  NavigatorState get _navigator => _navigatorKey.currentState!;
   @override
   Widget build(BuildContext context) {
     print(StorageRepository.getBool('registered'));
     return MaterialApp(
+      navigatorKey: _navigatorKey,
       theme: ThemeData(scaffoldBackgroundColor: white),
       debugShowCheckedModeBanner: false,
-      home: StorageRepository.getBool('registered')
-          ? const NavigationScreen()
-          : const OnBoardingScreen(),
+      onGenerateRoute: (settings) =>MaterialPageRoute(
+        builder: (context) => SplashScreen( ),
+      ),
+
     );
   }
 }
