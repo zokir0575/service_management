@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:service_app/assets/color/colors.dart';
@@ -29,10 +31,14 @@ class ServiceChip extends StatelessWidget {
         ),
         child: Row(
           children: [
-            SvgPicture.asset(entity.image),
-            const SizedBox(width: 12,),
+            Image.file(
+              File(entity.image),
+              height: 32,
+              width: 32,
+              fit: BoxFit.cover,
+            ),            const SizedBox(width: 12,),
             Text(entity.title, style: darkStyle(context).copyWith(
-                fontSize: 16, fontWeight: FontWeight.w400),)
+                fontSize: 16, fontWeight: FontWeight.w400), maxLines: 1, overflow: TextOverflow.ellipsis,)
           ],
         ),
       ),

@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:service_app/assets/color/colors.dart';
@@ -9,6 +8,7 @@ import 'package:service_app/globals/widgets/w_scale.dart';
 import 'package:service_app/modules/home/data/model/service_model.dart';
 import 'package:service_app/utils/text_styles.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 _launchURL(String url) async {
   if (await canLaunch(url)) {
     await launch(url);
@@ -35,27 +35,19 @@ class ServiceItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         color: whiteSmoke,
       ),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Stack(
             children: [
               ClipRRect(
                 borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(12)),
-                child: isLocalFile(model.image)
-                    ? Image.file(
+                    const BorderRadius.vertical(top: Radius.circular(12)),
+                child: Image.file(
                   File(model.image),
                   height: 170,
                   width: double.infinity,
                   fit: BoxFit.cover,
-                )
-                    : CachedNetworkImage(
-                  height: 170,
-                  width: double.infinity,
-                  imageUrl: model.image,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => const CircularProgressIndicator(),
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
                 ),
               ),
               Container(
@@ -82,7 +74,7 @@ class ServiceItem extends StatelessWidget {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    '${model.price} monthly • Family + plan',
+                    '\$${model.price} monthly • Family + plan',
                     style: greyStyle(context).copyWith(
                         fontWeight: FontWeight.w500,
                         fontSize: 12,
@@ -95,7 +87,7 @@ class ServiceItem extends StatelessWidget {
                 right: 8,
                 child: WScaleAnimation(
                   onTap: () {
-                     _launchURL(model.url);
+                    _launchURL(model.url);
                   },
                   child: Container(
                     padding: const EdgeInsets.all(6),
@@ -124,26 +116,46 @@ class ServiceItem extends StatelessWidget {
               Positioned(
                 bottom: 8,
                 left: 8,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(model.name, style: whiteStyle(context).copyWith(fontSize: 16, fontWeight: FontWeight.w600),),
-                    const SizedBox(height: 4,),
-                    Text('${model.start} - ${model.end}', style: greyStyle(context).copyWith(fontWeight: FontWeight.w400, fontSize: 12),),
-                  ],
+                child: SizedBox(
+                  width: MediaQuery.sizeOf(context).width -48,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        model.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: whiteStyle(context)
+                            .copyWith(fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(
+                        height: 4,
+                      ),
+                      Text(
+                        '${model.start} - ${model.end}',
+                        style: greyStyle(context)
+                            .copyWith(fontWeight: FontWeight.w400, fontSize: 12),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const Positioned(
                   bottom: 8,
                   right: 8,
-                  child: Icon(Icons.arrow_forward_ios, color: white,)
-              ),
+                  child: Icon(
+                    Icons.arrow_forward_ios,
+                    color: white,
+                  )),
             ],
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
             child: Text(
               model.note,
+
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               style: greyStyle(context)
                   .copyWith(fontWeight: FontWeight.w400, fontSize: 14),
             ),

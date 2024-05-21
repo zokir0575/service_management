@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:service_app/assets/color/colors.dart';
@@ -27,8 +29,12 @@ class _NotificationItemState extends State<NotificationItem> {
       ),
       child: Row(
         children: [
-          SvgPicture.asset(widget.model.image),
-          const SizedBox(
+          Image.file(
+            File(widget.model.image),
+            height: 32,
+            width: 32,
+            fit: BoxFit.cover,
+          ),          const SizedBox(
             width: 12,
           ),
           Column(

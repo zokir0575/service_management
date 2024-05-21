@@ -146,6 +146,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           WButton(
                             onTap: () async {
+                              StorageRepository.putBool(key: 'notification_enabled', value: false);
                               StorageRepository.putBool(
                                   key: 'registered', value: false);
                               await DatabaseHelper.deleteAllServices();

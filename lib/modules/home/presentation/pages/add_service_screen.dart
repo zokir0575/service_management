@@ -200,6 +200,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                           .copyWith(fontWeight: FontWeight.w400, fontSize: 14),
                     ),
                   ),
+                  maxLength: 12,
                   title: 'Price (monthly)',
                   controller: priceController,
                 ),

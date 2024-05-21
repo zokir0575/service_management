@@ -65,7 +65,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         ),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         child:             FutureBuilder<List<NotificationServiceModel>?>(
           future: DatabaseHelper.getNotificationServices(),
           builder: (context, snapshot) {

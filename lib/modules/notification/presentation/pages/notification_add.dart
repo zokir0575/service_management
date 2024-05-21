@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -120,10 +121,11 @@ class _NotificationAddScreenState extends State<NotificationAddScreen> {
                   child: Row(
                     children: [
                       if (selectedChip != null) ...{
-                        SvgPicture.asset(
-                          selectedChip!.image,
-                          height: 20,
-                          width: 20,
+                        Image.file(
+                          File(selectedChip!.image),
+                          height: 32,
+                          width: 32,
+                          fit: BoxFit.cover,
                         ),
                         const SizedBox(
                           width: 8,

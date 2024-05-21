@@ -201,26 +201,29 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                               ),
                                             )
                                           : SizedBox(
-                                        height: 100,
-                                            child: ListView.builder(
+                                              height: 100,
+                                              child: ListView.separated(
                                                 padding:
                                                     const EdgeInsets.symmetric(
                                                         horizontal: 16.0),
-                                                scrollDirection: Axis.horizontal,
+                                                scrollDirection:
+                                                    Axis.horizontal,
                                                 itemCount: endsEqualNow.length,
-                                                itemBuilder: (BuildContext context, int index) {
+                                                itemBuilder:
+                                                    (BuildContext context,
+                                                        int index) {
                                                   return PaymentItem(
                                                     isToday: true,
                                                     model: endsEqualNow[index],
                                                   );
-                                                },
+                                                }, separatorBuilder: (BuildContext context, int index) { return const SizedBox(width: 12,); },
                                               ),
-                                          ),
+                                            ),
                                     ],
                                   )
-                                } else if(filteredItems.isEmpty) ...{
-                                   const SizedBox()
-                                }else...{
+                                } else if (filteredItems.isEmpty) ...{
+                                  const SizedBox()
+                                } else ...{
                                   SizedBox(
                                     height: 90,
                                     child: ListView.separated(
@@ -229,8 +232,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                       scrollDirection: Axis.horizontal,
                                       itemBuilder: (context, index) =>
                                           PaymentItem(
-                                            model: filteredItems[index],
-                                          ),
+                                        model: filteredItems[index],
+                                      ),
                                       itemCount: filteredItems.length,
                                       separatorBuilder:
                                           (BuildContext context, int index) {
