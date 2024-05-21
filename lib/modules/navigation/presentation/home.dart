@@ -12,9 +12,8 @@ import 'navigator.dart';
 enum NavItemEnum { home, calendar, notification, setting }
 
 class NavigationScreen extends StatefulWidget {
-  final int? initialId;
-
-  const NavigationScreen({this.initialId, super.key});
+  final int? currentIndex;
+  const NavigationScreen({this.currentIndex, super.key});
 
   static Route route() =>
       MaterialPageRoute<void>(builder: (_) => const NavigationScreen());
@@ -110,7 +109,7 @@ class _NavigationScreenState extends State<NavigationScreen>
                     color: white,
                     boxShadow: [
                       BoxShadow(
-                        color:   whiteSmoke.withOpacity(0.64),
+                        color: whiteSmoke.withOpacity(0.64),
                         blurRadius: 24,
                         offset: const Offset(0, -8),
                       )

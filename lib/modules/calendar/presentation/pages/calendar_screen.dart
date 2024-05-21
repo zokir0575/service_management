@@ -35,7 +35,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
           children: [
             Padding(
               padding: EdgeInsets.fromLTRB(
-                  16, MediaQuery.paddingOf(context).top + 20, 16, 0),
+                  16, MediaQuery
+                  .paddingOf(context)
+                  .top + 20, 16, 0),
               child: TableCalendar(
                 headerStyle: const HeaderStyle(
                   formatButtonVisible: false,
@@ -91,9 +93,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
             const SizedBox(
               height: 16,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: const PaymentItem(),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: PaymentItem(),
             ),
             const SizedBox(
               height: 48,
@@ -101,7 +103,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
-                'Today payments',
+                'Upcoming payments',
                 style: darkStyle(context)
                     .copyWith(fontSize: 24, fontWeight: FontWeight.w600),
               ),
@@ -114,17 +116,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
               child: ListView.separated(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 scrollDirection: Axis.horizontal,
-                itemBuilder: (context, index) => PaymentItem(
+                itemBuilder: (context, index) =>
+                const PaymentItem(
                   isUpcoming: true,
                 ),
                 itemCount: 5,
                 separatorBuilder: (BuildContext context, int index) {
-                  return SizedBox(
+                  return const SizedBox(
                     width: 8,
                   );
                 },
               ),
             ),
+
+
           ],
         ),
       ),

@@ -31,11 +31,34 @@ class _HomeScreenState extends State<HomeScreen> {
                     top: MediaQuery.paddingOf(context).top + 12, bottom: 24),
                 child: Column(
                   children: [
-                    Text(
-                      '- \$21,65',
-                      style: darkStyle(context)
-                          .copyWith(fontSize: 44, fontWeight: FontWeight.w600),
-                    ),
+
+                    FutureBuilder<double?>(future: DatabaseHelper.getSumOfPrices(), builder: (context, snapshot){
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text(snapshot.error.toString());
+                      } else if (snapshot.hasData) {
+                        if (snapshot.data != null && snapshot.data != 0) {
+                          return  Text(
+                            '-\$${snapshot.data}',
+                            style: darkStyle(context)
+                                .copyWith(fontSize: 44, fontWeight: FontWeight.w600),
+                          );
+                        } else {
+                          return Text(
+                            '-\$0',
+                            style: darkStyle(context)
+                                .copyWith(fontSize: 44, fontWeight: FontWeight.w600),
+                          );
+                        }
+                      } else {
+                        return Text(
+                          '-\$0',
+                          style: darkStyle(context)
+                              .copyWith(fontSize: 44, fontWeight: FontWeight.w600),
+                        );
+                      }
+                    }),
                     const SizedBox(height: 8),
                     Text(
                       'Monthly',
@@ -134,16 +157,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 } else if (snapshot.hasError) {
                   return Text(snapshot.error.toString());
                 } else if (snapshot.hasData) {
-                  // Ensure the data is not null and has items
                   if (snapshot.data != null && snapshot.data!.isNotEmpty) {
-                    // Return the ListView.builder to display the items
                     return ListView.builder(
                       itemCount: snapshot.data!.length,
                       itemBuilder: (context, index) {
-                        // Print the data being passed to the ServiceItem for debugging
-                        print('Building item for index: $index');
-                        print(
-                            'ServiceModel: ${snapshot.data![index].toJson()}');
                         return ServiceItem(
                           model: snapshot.data![index],
                         );
@@ -178,9 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   } else if (snapshot.hasError) {
                     return Text(snapshot.error.toString());
                   } else if (snapshot.hasData) {
-                    print(snapshot.data != null);
                     if (snapshot.data != null) {
-                      print(snapshot.data!.length);
                       ListView.builder(
                         itemBuilder: (context, index) => ServiceItem(
                           model: snapshot.data![index],
@@ -201,8 +216,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   return Center(
                     child: Text(
                       'Services not found',
-                      style: darkStyle(context).copyWith(
-                          fontSize: 16, fontWeight: FontWeight.w600),
+                      style: darkStyle(context)
+                          .copyWith(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                   );
                 }),

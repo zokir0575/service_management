@@ -66,7 +66,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       .copyWith(fontWeight: FontWeight.w600, fontSize: 16),
                 ),
                 WCupertinoSwitch(
-                  onChange: (value) {},
+                  onTap: !StorageRepository.getBool('switched')
+                      ? () {
+                          setState(() {
+                            StorageRepository.putBool(
+                                key: 'switched', value: true);
+                          });
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Icon(
+                                  Icons.notifications,
+                                  size: 40,
+                                ),
+                                content: const Text(
+                                    "Allow notification Runtime Permission to send you notifications?"),
+                                actions: [
+                                  TextButton(
+                                    child: const Text("Deny"),
+                                    onPressed: () => Navigator.pop(context),
+                                  ),
+                                  TextButton(
+                                    child: const Text("Allow"),
+                                    onPressed: () => Navigator.pop(context),
+                                  )
+                                ],
+                              );
+                            },
+                          );
+                        }
+                      : null,
+                  isSwitched: StorageRepository.getBool('notification_enabled'),
+                  onChange: (value) {
+                    StorageRepository.putBool(key: 'notification_enabled', value: value);
+                  },
                 ),
               ],
             ),
@@ -110,10 +144,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             height: 32,
                           ),
                           WButton(
-                            onTap: ()async  {
-                              StorageRepository.putBool(key: 'registered', value: false);
+                            onTap: () async {
+                              StorageRepository.putBool(
+                                  key: 'registered', value: false);
                               await DatabaseHelper.deleteAllServices();
-                              Navigator.of(context,rootNavigator: true).pushAndRemoveUntil( fade( page: const OnBoardingScreen()), (route) => false);
+                              await DatabaseHelper.deleteAllNotificationServices();
+                              Navigator.of(context, rootNavigator: true)
+                                  .pushAndRemoveUntil(
+                                      fade(page: const OnBoardingScreen()),
+                                      (route) => false);
                             },
                             color: lightRed,
                             text: 'Delete',

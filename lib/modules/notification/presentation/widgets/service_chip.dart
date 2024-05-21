@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:service_app/assets/color/colors.dart';
 import 'package:service_app/assets/constants/app_icons.dart';
+import 'package:service_app/modules/notification/domain/entity.dart';
 import 'package:service_app/utils/text_styles.dart';
 
 class ServiceChip extends StatelessWidget {
   final VoidCallback onTap;
   final bool isClicked;
-
-  const ServiceChip({required this.onTap, this.isClicked = false, super.key});
+  final ChipEntity entity;
+  const ServiceChip({required this.onTap, required this.entity,  this.isClicked = false, super.key});
 
 
   @override
@@ -28,9 +29,9 @@ class ServiceChip extends StatelessWidget {
         ),
         child: Row(
           children: [
-            SvgPicture.asset(AppIcons.support),
+            SvgPicture.asset(entity.image),
             const SizedBox(width: 12,),
-            Text('Netflix', style: darkStyle(context).copyWith(
+            Text(entity.title, style: darkStyle(context).copyWith(
                 fontSize: 16, fontWeight: FontWeight.w400),)
           ],
         ),

@@ -3,18 +3,40 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:service_app/assets/constants/app_icons.dart';
 import 'package:service_app/globals/widgets/w_button.dart';
 import 'package:service_app/globals/widgets/w_scale.dart';
+import 'package:service_app/modules/notification/domain/entity.dart';
 import 'package:service_app/modules/notification/presentation/widgets/service_chip.dart';
 import 'package:service_app/utils/text_styles.dart';
 
 class ServiceSelectionScreen extends StatefulWidget {
-  const ServiceSelectionScreen({super.key});
+  final ChipEntity? initialSelectedChip;
+
+  const ServiceSelectionScreen({this.initialSelectedChip, super.key});
 
   @override
   State<ServiceSelectionScreen> createState() => _ServiceSelectionScreenState();
 }
 
 class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
-  List<bool> chipStates = List.generate(5, (_) => false);
+  late List<ChipEntity> chips;
+
+  @override
+  void initState() {
+    super.initState();
+    chips = [
+      ChipEntity(image: AppIcons.rateUs, title: 'Netflix'),
+      ChipEntity(image: AppIcons.support, title: 'Spotify'),
+      ChipEntity(image: AppIcons.share, title: 'Share'),
+      ChipEntity(image: AppIcons.notification, title: 'Apple'),
+      ChipEntity(image: AppIcons.calendar, title: 'Calendar'),
+    ];
+    if (widget.initialSelectedChip != null) {
+      final index =
+      chips.indexWhere((chip) => chip.title == widget.initialSelectedChip!.title);
+      if (index != -1) {
+        chips[index].isClicked = true;
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,22 +76,34 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
       ),
       body: GridView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: chipStates.length,
+          itemCount: chips.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               childAspectRatio: 1 / 0.3,
               crossAxisSpacing: 8,
               mainAxisSpacing: 8),
           itemBuilder: (context, index) => ServiceChip(
-                isClicked: chipStates[index],
+                isClicked: chips[index].isClicked,
                 onTap: () {
                   setState(() {
-                    chipStates = List.generate(chipStates.length, (_) => false);
-                    chipStates[index] = true;
+                    for (int i = 0; i < chips.length; i++) {
+                      chips[i].isClicked = false;
+                    }
+                    chips[index].isClicked = true;
                   });
                 },
+                entity: chips[index],
               )),
-      bottomNavigationBar:  WButton(onTap: () => Navigator.pop(context), margin: EdgeInsets.fromLTRB(16, 0, 16, MediaQuery.paddingOf(context).bottom + 16), text: 'Select',),
+      bottomNavigationBar: WButton(
+        isDisabled: chips.every((element) => element.isClicked == false),
+        onTap: () {
+          final selectedChip = chips.firstWhere((chip) => chip.isClicked);
+          Navigator.pop(context, selectedChip);
+        },
+        margin: EdgeInsets.fromLTRB(
+            16, 0, 16, MediaQuery.paddingOf(context).bottom + 16),
+        text: 'Select',
+      ),
     );
   }
 }

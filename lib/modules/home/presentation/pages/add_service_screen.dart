@@ -12,7 +12,6 @@ import 'package:service_app/assets/constants/app_icons.dart';
 import 'package:service_app/globals/bloc/date_picker/date_picker_bloc.dart';
 import 'package:service_app/globals/bloc/date_picker/date_picker_event.dart';
 import 'package:service_app/globals/bloc/date_picker/date_picker_state.dart';
-import 'package:service_app/globals/formatters/date_formatter.dart';
 import 'package:service_app/globals/source/database_helper.dart';
 import 'package:service_app/globals/widgets/cupertino_datepicker.dart';
 import 'package:service_app/globals/widgets/default_text_fileld.dart';
@@ -225,36 +224,39 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                       onTap: () {
                         DateTime getOriginalDate(String date) {
                           if (date.isNotEmpty) {
-                            return DateTime.parse(
-                                date.replaceAllMapped(
-                                  RegExp(r'(\d{2}).(\d{2}).(\d{4})'),
-                                      (match) => '${match[3]}-${match[2]}-${match[1]}',
-                                ));
+                            return DateTime.parse(date.replaceAllMapped(
+                              RegExp(r'(\d{2}).(\d{2}).(\d{4})'),
+                              (match) => '${match[3]}-${match[2]}-${match[1]}',
+                            ));
                           } else {
                             return DateTime.now();
                           }
                         }
 
-                        DateTime originalDate = getOriginalDate(state.startDate);
+                        DateTime originalDate =
+                            getOriginalDate(state.startDate);
                         String formattedDateString =
                             '${originalDate.year}-${originalDate.month.toString().padLeft(2, '0')}-${originalDate.day.toString().padLeft(2, '0')}';
 
-                        showCupertinoDatePicker(context, (date) {
-                          String formattedDate = Jiffy.parseFromDateTime(date)
-                              .format(pattern: 'dd/MM/yyyy');
-                          startController.text = formattedDate;
-                          selectedStartDate = date;
-                          context.read<DatePickerBloc>().add(
-                            PickedStartDate(date: formattedDate),
-                          );
-                        }, DateTime.parse(formattedDateString), );
+                        showCupertinoDatePicker(
+                          context,
+                          (date) {
+                            String formattedDate = Jiffy.parseFromDateTime(date)
+                                .format(pattern: 'dd.MM.yy');
+                            startController.text = formattedDate;
+                            selectedStartDate = date;
+                            context.read<DatePickerBloc>().add(
+                                  PickedStartDate(date: formattedDate),
+                                );
+                          },
+                          DateTime.parse(formattedDateString),
+                        );
                       },
                       onChanged: (value) {
                         setState(() {});
                       },
-                      hintText: '00/00/0000',
+                      hintText: 'dd.mm.yy',
                       keyboardType: TextInputType.number,
-                      inputFormatters: [DateTextFormatter()],
                       title: 'Start of subscription',
                       controller: startController,
                     );
@@ -268,11 +270,10 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                       onTap: () {
                         DateTime getOriginalDate(String date) {
                           if (date.isNotEmpty) {
-                            return DateTime.parse(
-                                date.replaceAllMapped(
-                                  RegExp(r'(\d{2}).(\d{2}).(\d{4})'),
-                                      (match) => '${match[3]}-${match[2]}-${match[1]}',
-                                ));
+                            return DateTime.parse(date.replaceAllMapped(
+                              RegExp(r'(\d{2}).(\d{2}).(\d{4})'),
+                              (match) => '${match[3]}-${match[2]}-${match[1]}',
+                            ));
                           } else {
                             return DateTime.now();
                           }
@@ -284,24 +285,24 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
 
                         showCupertinoDatePicker(
                           context,
-                              (date) {
+                          (date) {
                             String formattedDate = Jiffy.parseFromDateTime(date)
-                                .format(pattern: 'dd/MM/yyyy');
+                                .format(pattern: 'dd.MM.yy');
                             endController.text = formattedDate;
                             context.read<DatePickerBloc>().add(
-                              PickedEndDate(date: formattedDate),
-                            );
+                                  PickedEndDate(date: formattedDate),
+                                );
                           },
                           DateTime.parse(formattedDateString),
-                           minDate: selectedStartDate, // Set minimum date as selected start date
+                          minDate:
+                              selectedStartDate, // Set minimum date as selected start date
                         );
                       },
                       onChanged: (value) {
                         setState(() {});
                       },
-                      hintText: '00/00/0000',
+                      hintText: 'dd.mm.yy',
                       keyboardType: TextInputType.number,
-                      inputFormatters: [DateTextFormatter()],
                       title: 'End of subscription',
                       controller: endController,
                     );
@@ -358,8 +359,8 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                 nameController.text.isEmpty ||
                 priceController.text.isEmpty ||
                 urlController.text.isEmpty ||
-                startController.text.length < 10 ||
-                endController.text.length < 10 ||
+                startController.text.isEmpty ||
+                endController.text.isEmpty ||
                 noteController.text.isEmpty,
             onTap: () async {
               final name = nameController.text;

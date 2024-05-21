@@ -8,7 +8,7 @@ class WCupertinoSwitch extends StatefulWidget {
   final double width;
   final bool isSwitched;
   final double padding;
-
+  final VoidCallback? onTap;
   /// switching duration in milliseconds
   final int switchingDuration;
   final ValueChanged<bool> onChange;
@@ -18,6 +18,7 @@ class WCupertinoSwitch extends StatefulWidget {
     this.isSwitched = false,
     this.width = 46,
     this.padding = 2,
+    this.onTap,
     this.height = 27,
     this.activeColor = Colors.blue,
     this.inactiveColor = const Color(0xff999999),
@@ -59,6 +60,9 @@ class _WCupertinoSwitchState extends State<WCupertinoSwitch> {
         },
         child: GestureDetector(
           onTap: () {
+            if(widget.onTap != null){
+              widget.onTap!();
+            }
             setState(() {
               isSwitched = !isSwitched;
               widget.onChange(isSwitched);
