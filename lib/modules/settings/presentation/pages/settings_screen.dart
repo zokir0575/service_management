@@ -11,6 +11,8 @@ import 'package:service_app/modules/settings/presentation/pages/support_screen.d
 import 'package:service_app/modules/settings/presentation/widgets/profile_buttons.dart';
 import 'package:service_app/utils/storage.dart';
 import 'package:service_app/utils/text_styles.dart';
+import 'package:in_app_review/in_app_review.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -21,6 +23,7 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   late List<ButtonEntity> buttons;
+  bool showNotification = false;
 
   @override
   void initState() {
@@ -31,11 +34,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
               .push(fade(page: const SupportScreen())),
           icon: AppIcons.support),
       ButtonEntity(title: 'Share app', onTap: () {}, icon: AppIcons.share),
-      ButtonEntity(title: 'Rate us', onTap: () {}, icon: AppIcons.rateUs),
+      ButtonEntity(title: 'Rate us', onTap: () {rateApp();}, icon: AppIcons.rateUs),
     ];
     super.initState();
   }
-
+  void rateApp() async {
+    final InAppReview inAppReview = InAppReview.instance;
+    if (await inAppReview.isAvailable()) {
+      inAppReview.requestReview();
+    }
+  }
+  void showNotificationAction() async {
+    StorageRepository.putBool(
+        key: 'switched', value: true);
+    setState(() {
+      showNotification = !showNotification;
+    });
+    if (showNotification) {
+      final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,33 +95,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 WCupertinoSwitch(
                   onTap: !StorageRepository.getBool('switched')
                       ? () {
-                          setState(() {
-                            StorageRepository.putBool(
-                                key: 'switched', value: true);
-                          });
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Icon(
-                                  Icons.notifications,
-                                  size: 40,
-                                ),
-                                content: const Text(
-                                    "Allow notification Runtime Permission to send you notifications?"),
-                                actions: [
-                                  TextButton(
-                                    child: const Text("Deny"),
-                                    onPressed: () => Navigator.pop(context),
-                                  ),
-                                  TextButton(
-                                    child: const Text("Allow"),
-                                    onPressed: () => Navigator.pop(context),
-                                  )
-                                ],
-                              );
-                            },
-                          );
+                          showNotificationAction();
                         }
                       : null,
                   isSwitched: StorageRepository.getBool('notification_enabled'),

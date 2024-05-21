@@ -267,7 +267,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                   builder: (context, state) {
                     return DefaultTextField(
                       readOnly: true,
-                      onTap: () {
+                      onTap: startController.text.isEmpty ? (){} : () {
                         DateTime getOriginalDate(String date) {
                           if (date.isNotEmpty) {
                             return DateTime.parse(date.replaceAllMapped(
@@ -295,7 +295,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                           },
                           DateTime.parse(formattedDateString),
                           minDate:
-                              selectedStartDate, // Set minimum date as selected start date
+                          selectedStartDate!.add(const Duration(days: 1)), // Set minimum date as selected start date
                         );
                       },
                       onChanged: (value) {

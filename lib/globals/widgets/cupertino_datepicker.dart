@@ -24,8 +24,8 @@ void showCupertinoDatePicker(
       children: [
         DateTimePickerWidget(
           initDateTime: initialDate,
-          minDateTime: minDate, // Set the minDateTime property
-          maxDateTime: maxDate ?? DateTime.now(), // Optionally set maxDateTime property
+          minDateTime: minDate ?? DateTime.now(), // Set the minDateTime property
+          maxDateTime: DateTime(2030), // Optionally set maxDateTime property
           dateFormat: 'dd MM yyyy',
           pickerTheme: DateTimePickerTheme(
               confirmTextStyle: blueStyle(context)

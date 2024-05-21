@@ -31,7 +31,6 @@ class DatabaseHelper {
 
   static Future<int> addService(ServiceModel model) async {
     final db = await _getDb();
-    print(model.toJson());
     return await db.insert("ServiceModel", model.toJson(),
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
@@ -60,7 +59,6 @@ class DatabaseHelper {
   static Future<List<NotificationServiceModel>?> getNotificationServices() async {
     final db = await _getDb();
     final List<Map<String, dynamic>> maps = await db.query("NotificationServiceModel");
-    print(maps);
     if (maps.isEmpty) {
       return null;
     }
