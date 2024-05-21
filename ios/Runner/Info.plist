@@ -49,6 +49,10 @@
     <string>Your app needs access to the camera to take photos and videos.</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Your app needs access to the photo library to select photos and videos.</string>
-
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+      <string>sms</string>
+      <string>tel</string>
+    </array>
 </dict>
 </plist>
