@@ -1,8 +1,11 @@
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:service_app/assets/color/colors.dart';
 import 'package:service_app/globals/source/database_helper.dart';
 import 'package:service_app/globals/widgets/w_button.dart';
 import 'package:service_app/modules/home/data/model/service_model.dart';
+import 'package:service_app/modules/home/presentation/bloc/page_index/page_index_bloc.dart';
 import 'package:service_app/modules/home/presentation/pages/add_service_screen.dart';
 import 'package:service_app/modules/home/presentation/widgets/service_item.dart';
 import 'package:service_app/modules/navigation/presentation/navigator.dart';
@@ -17,12 +20,21 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   PageController pageController = PageController();
-  int pageIndex = 0;
+  late PageIndexBloc pageIndexBloc;
 
   @override
+  void initState() {
+    pageIndexBloc = PageIndexBloc();
+    super.initState();
+  }
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: NestedScrollView(
+    return BlocProvider.value(
+    value: pageIndexBloc,
+  child: Scaffold(
+      body: BlocBuilder<PageIndexBloc, PageIndexState>(
+  builder: (context, state) {
+    return NestedScrollView(
         headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
           return [
             SliverToBoxAdapter(
@@ -99,11 +111,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 decoration: BoxDecoration(
                     color: white,
                     borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(24)),
+                        const BorderRadius.vertical(top: Radius.circular(24)),
                     boxShadow: [
                       BoxShadow(
                           color: Colors.black.withOpacity(.05),
-                          offset: Offset(0, -4),
+                          offset: const Offset(0, -4),
                           blurRadius: 41.3,
                           spreadRadius: 0)
                     ]),
@@ -117,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           pageController.jumpToPage(0);
                         },
                         color:
-                            pageIndex == 0 ? lightPrimaryColor : lightPrimary2,
+                            state.pageIndex == 0 ? lightPrimaryColor : lightPrimary2,
                         text: 'Active',
                         textStyle: blueStyle(context).copyWith(
                             fontWeight: FontWeight.w600, fontSize: 16),
@@ -130,7 +142,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         textStyle: blueStyle(context).copyWith(
                             fontWeight: FontWeight.w600, fontSize: 16),
                         color:
-                            pageIndex == 1 ? lightPrimaryColor : lightPrimary2,
+
+                        state.pageIndex == 1 ? lightPrimaryColor : lightPrimary2,
                         text: 'Inactive',
                       ),
                     ),
@@ -144,16 +157,20 @@ class _HomeScreenState extends State<HomeScreen> {
         body: PageView(
           controller: pageController,
           onPageChanged: (int index) {
-            setState(() {
-              pageIndex = index;
-            });
+            pageIndexBloc.add(PageChanged(index: index));
           },
           children: [
             FutureBuilder<List<ServiceModel>?>(
               future: DatabaseHelper.getServices(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
+                  return const Center(child: SizedBox(
+                    height: 50,
+                    width: 50,
+                    child: CircularProgressIndicator(
+
+                    ),
+                  ));
                 } else if (snapshot.hasError) {
                   return Text(snapshot.error.toString());
                 } else if (snapshot.hasData) {
@@ -162,6 +179,35 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemCount: snapshot.data!.length,
                       itemBuilder: (context, index) {
                         return ServiceItem(
+                          onLongPress: (){
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text(
+                                        'Are you sure you want to delete this note?'),
+                                    actions: [
+                                      ElevatedButton(
+                                        style: ButtonStyle(
+                                            backgroundColor:
+                                            MaterialStateProperty.all(
+                                                red)),
+                                        onPressed: () async {
+                                          await DatabaseHelper.deleteService(
+                                              snapshot.data![index]);
+                                          Navigator.pop(context);
+                                          setState(() {});
+                                        },
+                                        child:   Text('Yes', style: whiteStyle(context).copyWith(fontSize: 14, fontWeight: FontWeight.w400),),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child:   Text('No', style: darkStyle(context).copyWith(fontSize: 14, fontWeight: FontWeight.w400),),
+                                      ),
+                                    ],
+                                  );
+                                });
+                          },
                           model: snapshot.data![index],
                         );
                       },
@@ -191,14 +237,46 @@ class _HomeScreenState extends State<HomeScreen> {
                 future: DatabaseHelper.getServices(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
+                    return const Center(child: SizedBox(
+                      height: 50,
+                      width: 50,
+                      child: CircularProgressIndicator(
+
+                      ),
+                    ));
                   } else if (snapshot.hasError) {
                     return Text(snapshot.error.toString());
                   } else if (snapshot.hasData) {
                     if (snapshot.data != null) {
                       ListView.builder(
                         itemBuilder: (context, index) => ServiceItem(
-                          model: snapshot.data![index],
+                          model: snapshot.data![index], onLongPress: () { showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text(
+                                    'Are you sure you want to delete this note?'),
+                                actions: [
+                                  ElevatedButton(
+                                    style: ButtonStyle(
+                                        backgroundColor:
+                                        MaterialStateProperty.all(
+                                            Colors.red)),
+                                    onPressed: () async {
+                                      await DatabaseHelper.deleteService(
+                                          snapshot.data![index]);
+                                      Navigator.pop(context);
+                                      setState(() {});
+                                    },
+                                    child: const Text('Yes'),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: const Text('No'),
+                                  ),
+                                ],
+                              );
+                            }); },
                         ),
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         itemCount: snapshot.data!.length,
@@ -223,7 +301,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 }),
           ],
         ),
-      ),
-    );
+      );
+  },
+),
+    ),
+);
   }
 }

@@ -44,7 +44,14 @@ class DatabaseHelper {
     return List.generate(
         maps.length, (index) => ServiceModel.fromJson(maps[index]));
   }
-
+  static Future<int> deleteService(ServiceModel serviceModel) async {
+    final db = await _getDb();
+    return await db.delete(
+      "ServiceModel",
+      where: 'id = ?',
+      whereArgs: [serviceModel.id],
+    );
+  }
   static Future<void> deleteAllServices() async {
     final db = await _getDb();
     await db.delete("ServiceModel");

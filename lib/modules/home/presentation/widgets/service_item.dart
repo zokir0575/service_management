@@ -19,8 +19,8 @@ _launchURL(String url) async {
 
 class ServiceItem extends StatelessWidget {
   final ServiceModel model;
-
-  const ServiceItem({required this.model, super.key});
+  final VoidCallback onLongPress;
+  const ServiceItem({required this.model,required this.onLongPress,  super.key});
 
   bool isLocalFile(String path) {
     return path.startsWith('/data/');
@@ -28,139 +28,142 @@ class ServiceItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        color: whiteSmoke,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(12)),
-                child: Image.file(
-                  File(model.image),
+    return GestureDetector(
+      onLongPress: onLongPress,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        width: double.infinity,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: whiteSmoke,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                ClipRRect(
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(12)),
+                  child: Image.file(
+                    File(model.image),
+                    height: 170,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                Container(
                   height: 170,
                   width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              Container(
-                height: 170,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.black.withOpacity(0),
-                      Colors.black.withOpacity(.54),
-                    ],
-                    begin: Alignment.bottomLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 8,
-                left: 8,
-                child: Container(
-                  padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(.4),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Text(
-                    '\$${model.price} monthly • Family + plan',
-                    style: greyStyle(context).copyWith(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 12,
-                        color: const Color(0xffcbcbcb)),
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.black.withOpacity(0),
+                        Colors.black.withOpacity(.54),
+                      ],
+                      begin: Alignment.bottomLeft,
+                      end: Alignment.bottomRight,
+                    ),
                   ),
                 ),
-              ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: WScaleAnimation(
-                  onTap: () {
-                    _launchURL(model.url);
-                  },
+                Positioned(
+                  top: 8,
+                  left: 8,
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(.4),
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: Row(
+                    child: Text(
+                      '\$${model.price} monthly • Family + plan',
+                      style: greyStyle(context).copyWith(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                          color: const Color(0xffcbcbcb)),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: WScaleAnimation(
+                    onTap: () {
+                      _launchURL(model.url);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(.4),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        children: [
+                          SvgPicture.asset(AppIcons.link),
+                          const SizedBox(
+                            width: 2,
+                          ),
+                          Text(
+                            'URL',
+                            style: greyStyle(context).copyWith(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
+                                color: const Color(0xffcbcbcb)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 8,
+                  left: 8,
+                  child: SizedBox(
+                    width: MediaQuery.sizeOf(context).width -48,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SvgPicture.asset(AppIcons.link),
+                        Text(
+                          model.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: whiteStyle(context)
+                              .copyWith(fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
                         const SizedBox(
-                          width: 2,
+                          height: 4,
                         ),
                         Text(
-                          'URL',
-                          style: greyStyle(context).copyWith(
-                              fontWeight: FontWeight.w500,
-                              fontSize: 12,
-                              color: const Color(0xffcbcbcb)),
+                          '${model.start} - ${model.end}',
+                          style: greyStyle(context)
+                              .copyWith(fontWeight: FontWeight.w400, fontSize: 12),
                         ),
                       ],
                     ),
                   ),
                 ),
-              ),
-              Positioned(
-                bottom: 8,
-                left: 8,
-                child: SizedBox(
-                  width: MediaQuery.sizeOf(context).width -48,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        model.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: whiteStyle(context)
-                            .copyWith(fontSize: 16, fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(
-                        height: 4,
-                      ),
-                      Text(
-                        '${model.start} - ${model.end}',
-                        style: greyStyle(context)
-                            .copyWith(fontWeight: FontWeight.w400, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const Positioned(
-                  bottom: 8,
-                  right: 8,
-                  child: Icon(
-                    Icons.arrow_forward_ios,
-                    color: white,
-                  )),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-            child: Text(
-              model.note,
-
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: greyStyle(context)
-                  .copyWith(fontWeight: FontWeight.w400, fontSize: 14),
+                const Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: Icon(
+                      Icons.arrow_forward_ios,
+                      color: white,
+                    )),
+              ],
             ),
-          )
-        ],
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+              child: Text(
+                model.note,
+
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: greyStyle(context)
+                    .copyWith(fontWeight: FontWeight.w400, fontSize: 14),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
