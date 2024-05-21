@@ -38,8 +38,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   late TextEditingController endController;
   late TextEditingController noteController;
   late ImagePickerBloc imagePickerBloc;
-  String? imagePath;
-  final NumberFormat _currencyFormat = NumberFormat.simpleCurrency();
+  String imagePath= '';
 
   @override
   void initState() {
@@ -157,7 +156,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                     child: ValueListenableBuilder(
                         valueListenable: imagePickerBloc.pickedImageFile,
                         builder: (context, String? value, Widget? child) {
-                          imagePath = value;
+                          imagePath = value ?? '';
 
                           return imageType(
                               pickedImage: value ?? '', context: context);
@@ -272,12 +271,12 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
             ),
           ),
           bottomNavigationBar: WButton(
-            isDisabled: imagePath == null ||
+            isDisabled: imagePath.isEmpty ||
                 nameController.text.isEmpty ||
                 priceController.text.isEmpty ||
                 urlController.text.isEmpty ||
-                startController.text.isEmpty ||
-                endController.text.isEmpty ||
+                startController.text.length < 10 ||
+                endController.text.length < 10 ||
                 noteController.text.isEmpty,
             onTap: () async {
               final name = nameController.text;

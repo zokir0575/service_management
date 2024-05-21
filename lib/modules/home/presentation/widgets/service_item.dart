@@ -8,6 +8,14 @@ import 'package:service_app/assets/constants/app_icons.dart';
 import 'package:service_app/globals/widgets/w_scale.dart';
 import 'package:service_app/modules/home/data/model/service_model.dart';
 import 'package:service_app/utils/text_styles.dart';
+import 'package:url_launcher/url_launcher.dart';
+_launchURL(String url) async {
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    print('Could not launch $url');
+  }
+}
 
 class ServiceItem extends StatelessWidget {
   final ServiceModel model;
@@ -86,7 +94,9 @@ class ServiceItem extends StatelessWidget {
                 top: 8,
                 right: 8,
                 child: WScaleAnimation(
-                  onTap: () {},
+                  onTap: () {
+                     _launchURL(model.url);
+                  },
                   child: Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
