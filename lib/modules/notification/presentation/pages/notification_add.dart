@@ -60,11 +60,12 @@ class _NotificationAddScreenState extends State<NotificationAddScreen> {
   }
 
   void showNotificationAction() async {
-    StorageRepository.putBool(
-      key: "showNotification",
-      value: !showNotification,
-    );
+
     setState(() {
+      StorageRepository.putBool(
+        key: "showNotification",
+        value: !showNotification,
+      );
       showNotification = !showNotification;
     });
     if (showNotification) {
