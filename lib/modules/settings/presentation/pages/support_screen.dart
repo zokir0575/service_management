@@ -110,7 +110,7 @@ class _SupportScreenState extends State<SupportScreen> {
                       messageController.text.isEmpty,
                   margin: EdgeInsets.only(
                       bottom: MediaQuery.of(context).padding.bottom + 12),
-                  onTap: () => Navigator.pop(context),
+                  onTap: () => Navigator.pop(context, true),
                   text: 'Send',
                 ),
               ),

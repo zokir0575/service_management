@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:service_app/assets/color/colors.dart';
 import 'package:service_app/assets/constants/app_icons.dart';
 import 'package:service_app/globals/source/database_helper.dart';
@@ -11,8 +12,7 @@ import 'package:service_app/modules/settings/presentation/pages/support_screen.d
 import 'package:service_app/modules/settings/presentation/widgets/profile_buttons.dart';
 import 'package:service_app/utils/storage.dart';
 import 'package:service_app/utils/text_styles.dart';
-import 'package:in_app_review/in_app_review.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:share_plus/share_plus.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -24,45 +24,83 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   late List<ButtonEntity> buttons;
   bool showNotification = false;
+  bool hasDelivered = false;
 
   @override
   void initState() {
     buttons = [
       ButtonEntity(
           title: 'Support',
-          onTap: () => Navigator.of(context, rootNavigator: true)
-              .push(fade(page: const SupportScreen())),
+          onTap: () async {
+            final result = await Navigator.of(context, rootNavigator: true)
+                .push(fade(page: const SupportScreen()));
+            if (result != null && result == true) {
+              setState(() {
+                hasDelivered = result;
+              });
+              showModalBottomSheet(
+                  context: context,
+                  backgroundColor: white,
+                  builder: (context) {
+                    return Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Your message has been successfully delivered!',
+                            textAlign: TextAlign.center,
+                            style: darkStyle(context).copyWith(
+                                fontSize: 24, fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(
+                            height: 12,
+                          ),
+                          Text(
+                            'Thank you for the opportunity to become better',
+                            style: greyStyle(context).copyWith(
+                                fontWeight: FontWeight.w400, fontSize: 14),
+                          ),
+                          const SizedBox(
+                            height: 32,
+                          ),
+                          WButton(
+                            onTap: () async {
+                              Navigator.pop(context);
+                            },
+                            color: primaryColor,
+                            text: 'Ok',
+                          )
+                        ],
+                      ),
+                    );
+                  });
+            }
+          },
           icon: AppIcons.support),
-      ButtonEntity(title: 'Share app', onTap: () {}, icon: AppIcons.share),
-      ButtonEntity(title: 'Rate us', onTap: () {rateApp();}, icon: AppIcons.rateUs),
+      ButtonEntity(
+          title: 'Share app',
+          onTap: () {
+            Share.share('Share us on https://www.google.ru/?hl=ru');
+          },
+          icon: AppIcons.share),
+      ButtonEntity(
+          title: 'Rate us',
+          onTap: () {
+            rateApp();
+          },
+          icon: AppIcons.rateUs),
     ];
     super.initState();
   }
+
   void rateApp() async {
     final InAppReview inAppReview = InAppReview.instance;
     if (await inAppReview.isAvailable()) {
       inAppReview.requestReview();
     }
   }
-  void showNotificationAction() async {
-    StorageRepository.putBool(
-        key: 'switched', value: true);
-    setState(() {
-      showNotification = !showNotification;
-    });
-    if (showNotification) {
-      final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
-      await flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-          IOSFlutterLocalNotificationsPlugin>()
-          ?.requestPermissions(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
-    }
-  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,12 +133,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 WCupertinoSwitch(
                   onTap: !StorageRepository.getBool('switched')
                       ? () {
-                          showNotificationAction();
+                          setState(() {
+                            StorageRepository.putBool(
+                                key: 'switched', value: true);
+                          });
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Icon(
+                                  Icons.notifications,
+                                  size: 40,
+                                ),
+                                content: const Text(
+                                    "Allow notification Runtime Permission to send you notifications?"),
+                                actions: [
+                                  TextButton(
+                                    child: const Text("Deny"),
+                                    onPressed: () => Navigator.pop(context),
+                                  ),
+                                  TextButton(
+                                    child: const Text("Allow"),
+                                    onPressed: () => Navigator.pop(context),
+                                  )
+                                ],
+                              );
+                            },
+                          );
                         }
                       : null,
                   isSwitched: StorageRepository.getBool('notification_enabled'),
                   onChange: (value) {
-                    StorageRepository.putBool(key: 'notification_enabled', value: value);
+                    StorageRepository.putBool(
+                        key: 'notification_enabled', value: value);
                   },
                 ),
               ],
@@ -146,11 +211,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ),
                           WButton(
                             onTap: () async {
-                              StorageRepository.putBool(key: 'notification_enabled', value: false);
+                              StorageRepository.putBool(
+                                  key: 'notification_enabled', value: false);
                               StorageRepository.putBool(
                                   key: 'registered', value: false);
                               await DatabaseHelper.deleteAllServices();
-                              await DatabaseHelper.deleteAllNotificationServices();
+                              await DatabaseHelper
+                                  .deleteAllNotificationServices();
                               Navigator.of(context, rootNavigator: true)
                                   .pushAndRemoveUntil(
                                       fade(page: const OnBoardingScreen()),
