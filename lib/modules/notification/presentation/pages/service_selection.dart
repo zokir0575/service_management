@@ -113,6 +113,7 @@ class _ServiceSelectionScreenState extends State<ServiceSelectionScreen> {
             final selectedChip = ChipEntity(
               image: selectedService!.image,
               title: selectedService!.name,
+              date: selectedService!.end,
             );
             Navigator.pop(context, selectedChip);
           }

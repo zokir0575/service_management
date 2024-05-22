@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:service_app/assets/color/colors.dart';
 import 'package:service_app/assets/constants/app_icons.dart';
 import 'package:service_app/globals/source/database_helper.dart';
@@ -10,7 +11,6 @@ import 'package:service_app/modules/onboarding/presentation/pages/onboarding_scr
 import 'package:service_app/modules/settings/domain/entity/button.dart';
 import 'package:service_app/modules/settings/presentation/pages/support_screen.dart';
 import 'package:service_app/modules/settings/presentation/widgets/profile_buttons.dart';
-import 'package:service_app/modules/settings/presentation/widgets/rate_sheet.dart';
 import 'package:service_app/utils/storage.dart';
 import 'package:service_app/utils/text_styles.dart';
 import 'package:share_plus/share_plus.dart';
@@ -29,6 +29,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   void initState() {
+    showNotification = StorageRepository.getBool('showNotification');
     buttons = [
       ButtonEntity(
           title: 'Support',
@@ -95,40 +96,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
   }
 
-  void rateApp()   {
-   showModalBottomSheet(context: context, builder: (context) => const RateSheet());
+  void rateApp() async {
+    final InAppReview inAppReview = InAppReview.instance;
+    if (await inAppReview.isAvailable()) {
+      inAppReview.requestReview();
+    }
   }
 
-  Future<void> requestNotificationPermission() async {
-    final status = await Permission.notification.request();
-
-    if (status.isGranted) {
-      // Notification permission granted.
-      print('Notification permission granted');
-    } else if (status.isDenied) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Notification Permission'),
-          content: const Text(
-              'App notifications can be useful for keeping you informed. Would you like to allow notifications?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('No'),
-            ),
-            TextButton(
-              onPressed: () async {
-                await openAppSettings();
-              },
-              child: const Text('Settings'),
-            ),
-          ],
-        ),
-      );
-      print('Notification permission denied');
-    } else if (status.isPermanentlyDenied) {
-      await openAppSettings();
+  void showNotificationAction() async {
+    StorageRepository.putBool(
+      key: "showNotification",
+      value: !showNotification,
+    );
+    setState(() {
+      showNotification = !showNotification;
+    });
+    if (showNotification) {
+      final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+          FlutterLocalNotificationsPlugin();
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
     }
   }
 
@@ -162,16 +155,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       .copyWith(fontWeight: FontWeight.w600, fontSize: 16),
                 ),
                 WCupertinoSwitch(
-                  onTap: !StorageRepository.getBool('switched')
+                  onTap: !StorageRepository.getBool('showNotification')
                       ? () {
-                          setState(() {
-                            StorageRepository.putBool(
-                                key: 'switched', value: true);
-                          });
-                          requestNotificationPermission();
+                          print('worked');
+                          showNotificationAction();
                         }
                       : null,
-                  isSwitched: StorageRepository.getBool('notification_enabled'),
+                  isSwitched: !StorageRepository.getBool('showNotification')
+                      ? false
+                      : StorageRepository.getBool('notification_enabled'),
                   onChange: (value) {
                     StorageRepository.putBool(
                         key: 'notification_enabled', value: value);

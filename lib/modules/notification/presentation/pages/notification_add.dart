@@ -3,7 +3,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:service_app/assets/color/colors.dart';
 import 'package:service_app/assets/constants/app_icons.dart';
@@ -14,14 +16,15 @@ import 'package:service_app/globals/source/database_helper.dart';
 import 'package:service_app/globals/widgets/cupertino_datepicker.dart';
 import 'package:service_app/globals/widgets/default_text_fileld.dart';
 import 'package:service_app/globals/widgets/keyboard_dismisser.dart';
+import 'package:service_app/globals/widgets/snackbar.dart';
 import 'package:service_app/globals/widgets/w_button.dart';
 import 'package:service_app/globals/widgets/w_checkbox.dart';
 import 'package:service_app/globals/widgets/w_scale.dart';
-import 'package:service_app/modules/navigation/presentation/home.dart';
 import 'package:service_app/modules/navigation/presentation/navigator.dart';
 import 'package:service_app/modules/notification/data/model/notification_service.dart';
 import 'package:service_app/modules/notification/domain/entity.dart';
 import 'package:service_app/modules/notification/presentation/pages/service_selection.dart';
+import 'package:service_app/utils/storage.dart';
 import 'package:service_app/utils/text_styles.dart';
 
 class NotificationAddScreen extends StatefulWidget {
@@ -37,9 +40,12 @@ class _NotificationAddScreenState extends State<NotificationAddScreen> {
   late TextEditingController priceController;
   late DatePickerBloc datePickerBloc;
   ChipEntity? selectedChip;
+  bool showNotification = false;
 
   @override
   void initState() {
+    showNotification = StorageRepository.getBool('showNotification');
+
     datePickerBloc = DatePickerBloc();
     dateController = TextEditingController();
     priceController = TextEditingController();
@@ -53,11 +59,30 @@ class _NotificationAddScreenState extends State<NotificationAddScreen> {
     super.dispose();
   }
 
+  void showNotificationAction() async {
+    StorageRepository.putBool(
+      key: "showNotification",
+      value: !showNotification,
+    );
+    setState(() {
+      showNotification = !showNotification;
+    });
+    if (showNotification) {
+      final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+          FlutterLocalNotificationsPlugin();
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    print(dateController.text);
-    print(priceController.text);
-    print(selectedChip == null);
     return KeyboardDismisser(
       child: BlocProvider.value(
         value: datePickerBloc,
@@ -152,35 +177,29 @@ class _NotificationAddScreenState extends State<NotificationAddScreen> {
                   builder: (context, state) {
                     return DefaultTextField(
                       readOnly: true,
-                      onTap: () {
-                        DateTime getOriginalDate(String date) {
-                          if (date.isNotEmpty) {
-                            return DateTime.parse(date.replaceAllMapped(
-                              RegExp(r'(\d{2}).(\d{2}).(\d{4})'),
-                              (match) => '${match[3]}-${match[2]}-${match[1]}',
-                            ));
-                          } else {
-                            return DateTime.now();
-                          }
-                        }
-
-                        DateTime originalDate = getOriginalDate(state.endDate);
-                        String formattedDateString =
-                            '${originalDate.year}-${originalDate.month.toString().padLeft(2, '0')}-${originalDate.day.toString().padLeft(2, '0')}';
-
-                        showCupertinoDatePicker(
-                          context,
-                          (date) {
-                            String formattedDate = Jiffy.parseFromDateTime(date)
-                                .format(pattern: 'dd.MM.yy');
-                            dateController.text = formattedDate;
-                            context.read<DatePickerBloc>().add(
-                                  PickedEndDate(date: formattedDate),
-                                );
-                          },
-                          DateTime.parse(formattedDateString),
-                        );
-                      },
+                      onTap: selectedChip == null
+                          ? () {
+                              showInfoSnackBar(context,
+                                  text: 'First select service');
+                            }
+                          : () {
+                              showCupertinoDatePicker(
+                                context,
+                                (date) {
+                                  String formattedDate =
+                                      Jiffy.parseFromDateTime(date)
+                                          .format(pattern: 'dd.MM.yy');
+                                  dateController.text = formattedDate;
+                                  context.read<DatePickerBloc>().add(
+                                        PickedEndDate(date: formattedDate),
+                                      );
+                                },
+                                minDate: DateFormat('dd.MM.yyyy')
+                                    .parse(selectedChip?.date ?? ''),
+                                DateFormat('dd.MM.yyyy')
+                                    .parse(selectedChip?.date ?? ''),
+                              );
+                            },
                       onChanged: (value) {
                         setState(() {});
                       },
@@ -196,9 +215,7 @@ class _NotificationAddScreenState extends State<NotificationAddScreen> {
                 ),
                 DefaultTextField(
                   onChanged: (value) {
-                    setState(() {
-
-                    });
+                    setState(() {});
                   },
                   keyboardType: TextInputType.number,
                   title: 'Sum of payment',
@@ -216,11 +233,16 @@ class _NotificationAddScreenState extends State<NotificationAddScreen> {
                   height: 16,
                 ),
                 WScaleAnimation(
-                  onTap: () {
-                    setState(() {
-                      isChecked = !isChecked;
-                    });
-                  },
+                  onTap: !StorageRepository.getBool('showNotification')
+                      ? () {
+                          print('a');
+                          showNotificationAction();
+                        }
+                      : () {
+                          setState(() {
+                            isChecked = !isChecked;
+                          });
+                        },
                   child: Row(
                     children: [
                       WCheckBox(
@@ -242,13 +264,14 @@ class _NotificationAddScreenState extends State<NotificationAddScreen> {
             ),
           ),
           bottomNavigationBar: WButton(
-            onTap: () async{
+            onTap: () async {
               final price = priceController.text;
               final date = dateController.text;
 
               final NotificationServiceModel model = NotificationServiceModel(
                 image: selectedChip!.image,
                 price: price,
+                isSwitched: isChecked,
                 id: Random().nextInt(100),
                 date: date,
               );

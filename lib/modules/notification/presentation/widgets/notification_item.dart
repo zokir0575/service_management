@@ -1,11 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:service_app/assets/color/colors.dart';
 import 'package:service_app/globals/source/database_helper.dart';
 import 'package:service_app/globals/widgets/w_cupertino_switch.dart';
 import 'package:service_app/modules/notification/data/model/notification_service.dart';
+import 'package:service_app/utils/storage.dart';
 import 'package:service_app/utils/text_styles.dart';
 
 class NotificationItem extends StatefulWidget {
@@ -18,6 +19,35 @@ class NotificationItem extends StatefulWidget {
 }
 
 class _NotificationItemState extends State<NotificationItem> {
+  bool showNotification = false;
+
+  @override
+  void initState() {
+    showNotification = StorageRepository.getBool('showNotification');
+    super.initState();
+  }
+    void showNotificationAction() async {
+    StorageRepository.putBool(
+      key: "showNotification",
+      value: !showNotification,
+    );
+    setState(() {
+      showNotification = !showNotification;
+    });
+    if (showNotification) {
+      final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -34,7 +64,8 @@ class _NotificationItemState extends State<NotificationItem> {
             height: 32,
             width: 32,
             fit: BoxFit.cover,
-          ),          const SizedBox(
+          ),
+          const SizedBox(
             width: 12,
           ),
           Column(
@@ -56,7 +87,11 @@ class _NotificationItemState extends State<NotificationItem> {
           ),
           const Spacer(),
           WCupertinoSwitch(
-            isSwitched: widget.model.isSwitched,
+            onTap: StorageRepository.getBool('showNotification') ? null : () {
+              showNotificationAction();
+            },
+            isSwitched: !StorageRepository.getBool('showNotification') ?false : widget
+                .model.isSwitched,
             onChange: (value) async {
               setState(() {
                 widget.model.isSwitched = value;

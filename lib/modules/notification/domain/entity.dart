@@ -1,13 +1,12 @@
-
 import 'package:equatable/equatable.dart';
 
-class ChipEntity extends Equatable{
+class ChipEntity extends Equatable {
   final String image;
   final String title;
-  bool isClicked;
+  final String date;
 
-    ChipEntity({  this.image= '', this.isClicked = false,   this.title = ''});
+  const ChipEntity({this.date = '', this.image = '', this.title = ''});
+
   @override
-  List<Object?> get props => [image,isClicked, title];
-
+  List<Object?> get props => [image, date, title];
 }
