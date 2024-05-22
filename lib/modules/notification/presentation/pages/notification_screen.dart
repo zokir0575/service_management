@@ -85,7 +85,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
               } else {
                 return Center(
                   child: Text(
-                    'Notifications not found',
+                    'Notifications are not added yet',
                     style: darkStyle(context)
                         .copyWith(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
@@ -94,7 +94,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             } else {
               return Center(
                 child: Text(
-                  'Notifications not found',
+                  'Notifications are not added yet',
                   style: darkStyle(context)
                       .copyWith(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
