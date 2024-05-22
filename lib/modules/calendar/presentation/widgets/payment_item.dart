@@ -13,7 +13,7 @@ class PaymentItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: isToday ? MediaQuery.sizeOf(context).width : null,
+      width: isToday ? MediaQuery.sizeOf(context).width - 32 : null,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
