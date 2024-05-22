@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:in_app_review/in_app_review.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:service_app/assets/color/colors.dart';
 import 'package:service_app/assets/constants/app_icons.dart';
 import 'package:service_app/globals/source/database_helper.dart';
@@ -13,6 +14,7 @@ import 'package:service_app/modules/settings/presentation/widgets/profile_button
 import 'package:service_app/utils/storage.dart';
 import 'package:service_app/utils/text_styles.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -28,7 +30,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   void initState() {
-    buttons = [
+     buttons = [
       ButtonEntity(
           title: 'Support',
           onTap: () async {
@@ -100,7 +102,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
       inAppReview.requestReview();
     }
   }
+  Future<void> requestNotificationPermission() async {
+    final status = await Permission.notification.request();
 
+    if (status.isGranted) {
+      // Notification permission granted.
+      print('Notification permission granted');
+    } else if (status.isDenied) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Notification Permission'),
+          content: Text('App notifications can be useful for keeping you informed. Would you like to allow notifications?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('No'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await openAppSettings();
+                // Consider requesting permission again after the user visits settings
+              },
+              child: Text('Settings'),
+            ),
+          ],
+        ),
+      );      print('Notification permission denied');
+    } else if (status.isPermanentlyDenied) {
+      // Notification permission permanently denied, open app settings
+      await openAppSettings();
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,29 +170,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             StorageRepository.putBool(
                                 key: 'switched', value: true);
                           });
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Icon(
-                                  Icons.notifications,
-                                  size: 40,
-                                ),
-                                content: const Text(
-                                    "Allow notification Runtime Permission to send you notifications?"),
-                                actions: [
-                                  TextButton(
-                                    child: const Text("Deny"),
-                                    onPressed: () => Navigator.pop(context),
-                                  ),
-                                  TextButton(
-                                    child: const Text("Allow"),
-                                    onPressed: () => Navigator.pop(context),
-                                  )
-                                ],
-                              );
-                            },
-                          );
+                          requestNotificationPermission();
                         }
                       : null,
                   isSwitched: StorageRepository.getBool('notification_enabled'),

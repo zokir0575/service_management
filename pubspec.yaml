@@ -31,6 +31,7 @@ dependencies:
   jiffy: ^6.2.1
   flutter_local_notifications: ^17.1.2
   in_app_review: ^2.0.8
+  permission_handler: ^9.0.0
   share_plus:
 dev_dependencies:
   flutter_test:
