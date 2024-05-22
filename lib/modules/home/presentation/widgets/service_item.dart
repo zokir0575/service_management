@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:service_app/assets/color/colors.dart';
 import 'package:service_app/assets/constants/app_icons.dart';
+import 'package:service_app/globals/widgets/snackbar.dart';
 import 'package:service_app/globals/widgets/w_scale.dart';
 import 'package:service_app/modules/home/data/model/service_model.dart';
 import 'package:service_app/utils/text_styles.dart';
@@ -20,7 +21,9 @@ _launchURL(String url) async {
 class ServiceItem extends StatelessWidget {
   final ServiceModel model;
   final VoidCallback onLongPress;
-  const ServiceItem({required this.model,required this.onLongPress,  super.key});
+
+  const ServiceItem(
+      {required this.model, required this.onLongPress, super.key});
 
   bool isLocalFile(String path) {
     return path.startsWith('/data/');
@@ -88,8 +91,17 @@ class ServiceItem extends StatelessWidget {
                   top: 8,
                   right: 8,
                   child: WScaleAnimation(
-                    onTap: () {
-                      _launchURL(model.url);
+                    onTap: () async {
+                      if (await canLaunchUrl(Uri.parse(model.url))) {
+                        launchUrl(
+                          Uri.parse(model.url),
+                        );
+                      } else {
+                        showInfoSnackBar(
+                          context,
+                          text: "The link cannot be opened.",
+                        );
+                      }
                     },
                     child: Container(
                       padding: const EdgeInsets.all(6),
@@ -119,7 +131,7 @@ class ServiceItem extends StatelessWidget {
                   bottom: 8,
                   left: 8,
                   child: SizedBox(
-                    width: MediaQuery.sizeOf(context).width -48,
+                    width: MediaQuery.sizeOf(context).width - 48,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -127,16 +139,16 @@ class ServiceItem extends StatelessWidget {
                           model.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: whiteStyle(context)
-                              .copyWith(fontSize: 16, fontWeight: FontWeight.w600),
+                          style: whiteStyle(context).copyWith(
+                              fontSize: 16, fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(
                           height: 4,
                         ),
                         Text(
                           '${model.start} - ${model.end}',
-                          style: greyStyle(context)
-                              .copyWith(fontWeight: FontWeight.w400, fontSize: 12),
+                          style: greyStyle(context).copyWith(
+                              fontWeight: FontWeight.w400, fontSize: 12),
                         ),
                       ],
                     ),
@@ -155,7 +167,6 @@ class ServiceItem extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
               child: Text(
                 model.note,
-
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: greyStyle(context)
