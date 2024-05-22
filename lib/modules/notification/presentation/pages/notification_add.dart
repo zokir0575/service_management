@@ -90,6 +90,7 @@ class _NotificationAddScreenState extends State<NotificationAddScreen> {
         child: Scaffold(
           resizeToAvoidBottomInset: false,
           appBar: AppBar(
+            backgroundColor: white,
             surfaceTintColor: Colors.transparent,
             leadingWidth: 100,
             elevation: 0,

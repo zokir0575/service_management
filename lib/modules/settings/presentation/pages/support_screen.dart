@@ -38,6 +38,7 @@ class _SupportScreenState extends State<SupportScreen> {
       child: Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
+          backgroundColor: Colors.white,
           surfaceTintColor: Colors.transparent,
           leadingWidth: 100,
           elevation: 0,

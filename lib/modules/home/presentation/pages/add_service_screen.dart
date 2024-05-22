@@ -81,6 +81,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
         ],
         child: Scaffold(
           appBar: AppBar(
+            backgroundColor: white,
             surfaceTintColor: Colors.transparent,
             leadingWidth: 100,
             elevation: 0,

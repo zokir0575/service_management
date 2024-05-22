@@ -185,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 builder: (context) {
                                   return AlertDialog(
                                     title: const Text(
-                                        'Are you sure you want to delete this note?'),
+                                        'Are you sure you want to delete this service?'),
                                     actions: [
                                       ElevatedButton(
                                         style: ButtonStyle(
@@ -255,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             builder: (context) {
                               return AlertDialog(
                                 title: const Text(
-                                    'Are you sure you want to delete this note?'),
+                                    'Are you sure you want to delete this service?'),
                                 actions: [
                                   ElevatedButton(
                                     style: ButtonStyle(
