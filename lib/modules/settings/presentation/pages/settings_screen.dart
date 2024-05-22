@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:in_app_review/in_app_review.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:service_app/assets/color/colors.dart';
 import 'package:service_app/assets/constants/app_icons.dart';
@@ -11,10 +10,10 @@ import 'package:service_app/modules/onboarding/presentation/pages/onboarding_scr
 import 'package:service_app/modules/settings/domain/entity/button.dart';
 import 'package:service_app/modules/settings/presentation/pages/support_screen.dart';
 import 'package:service_app/modules/settings/presentation/widgets/profile_buttons.dart';
+import 'package:service_app/modules/settings/presentation/widgets/rate_sheet.dart';
 import 'package:service_app/utils/storage.dart';
 import 'package:service_app/utils/text_styles.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -30,7 +29,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   void initState() {
-     buttons = [
+    buttons = [
       ButtonEntity(
           title: 'Support',
           onTap: () async {
@@ -96,12 +95,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
   }
 
-  void rateApp() async {
-    final InAppReview inAppReview = InAppReview.instance;
-    if (await inAppReview.isAvailable()) {
-      inAppReview.requestReview();
-    }
+  void rateApp()   {
+   showModalBottomSheet(context: context, builder: (context) => const RateSheet());
   }
+
   Future<void> requestNotificationPermission() async {
     final status = await Permission.notification.request();
 
@@ -112,28 +109,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Notification Permission'),
-          content: Text('App notifications can be useful for keeping you informed. Would you like to allow notifications?'),
+          title: const Text('Notification Permission'),
+          content: const Text(
+              'App notifications can be useful for keeping you informed. Would you like to allow notifications?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('No'),
+              child: const Text('No'),
             ),
             TextButton(
               onPressed: () async {
                 await openAppSettings();
-                // Consider requesting permission again after the user visits settings
               },
-              child: Text('Settings'),
+              child: const Text('Settings'),
             ),
           ],
         ),
-      );      print('Notification permission denied');
+      );
+      print('Notification permission denied');
     } else if (status.isPermanentlyDenied) {
-      // Notification permission permanently denied, open app settings
       await openAppSettings();
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
