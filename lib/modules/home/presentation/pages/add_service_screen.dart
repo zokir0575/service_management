@@ -268,37 +268,46 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                   builder: (context, state) {
                     return DefaultTextField(
                       readOnly: true,
-                      onTap: startController.text.isEmpty ? (){} : () {
-                        DateTime getOriginalDate(String date) {
-                          if (date.isNotEmpty) {
-                            return DateTime.parse(date.replaceAllMapped(
-                              RegExp(r'(\d{2}).(\d{2}).(\d{4})'),
-                              (match) => '${match[3]}-${match[2]}-${match[1]}',
-                            ));
-                          } else {
-                            return DateTime.now();
-                          }
-                        }
+                      onTap: startController.text.isEmpty
+                          ? () {}
+                          : () {
+                              DateTime getOriginalDate(String date) {
+                                if (date.isNotEmpty) {
+                                  return DateTime.parse(date.replaceAllMapped(
+                                    RegExp(r'(\d{2}).(\d{2}).(\d{4})'),
+                                    (match) =>
+                                        '${match[3]}-${match[2]}-${match[1]}',
+                                  ));
+                                } else {
+                                  return DateTime.now();
+                                }
+                              }
 
-                        DateTime originalDate = getOriginalDate(state.endDate);
-                        String formattedDateString =
-                            '${originalDate.year}-${originalDate.month.toString().padLeft(2, '0')}-${originalDate.day.toString().padLeft(2, '0')}';
+                              DateTime originalDate =
+                                  getOriginalDate(state.endDate);
+                              String formattedDateString =
+                                  '${originalDate.year}-${originalDate.month.toString().padLeft(2, '0')}-${originalDate.day.toString().padLeft(2, '0')}';
+                              DateTime newDate = DateTime(
+                                      selectedStartDate!.year,
+                                      selectedStartDate!.month + 1,
+                                      selectedStartDate!.day)
+                                  .add(const Duration(days: 1));
 
-                        showCupertinoDatePicker(
-                          context,
-                          (date) {
-                            String formattedDate = Jiffy.parseFromDateTime(date)
-                                .format(pattern: 'dd.MM.yy');
-                            endController.text = formattedDate;
-                            context.read<DatePickerBloc>().add(
-                                  PickedEndDate(date: formattedDate),
-                                );
-                          },
-                          DateTime.parse(formattedDateString),
-                          minDate:
-                          selectedStartDate!.add(const Duration(days: 1)), // Set minimum date as selected start date
-                        );
-                      },
+                              showCupertinoDatePicker(
+                                context,
+                                (date) {
+                                  String formattedDate =
+                                      Jiffy.parseFromDateTime(date)
+                                          .format(pattern: 'dd.MM.yy');
+                                  endController.text = formattedDate;
+                                  context.read<DatePickerBloc>().add(
+                                        PickedEndDate(date: formattedDate),
+                                      );
+                                },
+                                DateTime.parse(formattedDateString),
+                                minDate: newDate,
+                              );
+                            },
                       onChanged: (value) {
                         setState(() {});
                       },
