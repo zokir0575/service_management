@@ -216,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   } else {
                     return Center(
                       child: Text(
-                        'Services not found',
+                        'Add your first service!',
                         style: darkStyle(context).copyWith(
                             fontSize: 16, fontWeight: FontWeight.w600),
                       ),
@@ -225,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 } else {
                   return Center(
                     child: Text(
-                      'Services not found',
+                      'Add your first service!',
                       style: darkStyle(context)
                           .copyWith(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
@@ -284,7 +284,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     } else {
                       return Center(
                         child: Text(
-                          'Services not found',
+                          'Add your first service!',
                           style: darkStyle(context).copyWith(
                               fontSize: 16, fontWeight: FontWeight.w600),
                         ),
@@ -293,7 +293,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   }
                   return Center(
                     child: Text(
-                      'Services not found',
+                      'Add your first service!',
                       style: darkStyle(context)
                           .copyWith(fontSize: 16, fontWeight: FontWeight.w600),
                     ),
