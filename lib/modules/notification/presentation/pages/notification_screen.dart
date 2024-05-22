@@ -24,7 +24,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     return Scaffold(
       appBar: AppBar(
         surfaceTintColor: Colors.transparent,
-        title:  Row(
+        title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
@@ -34,8 +34,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
             ),
             WScaleAnimation(
               onTap: () async {
-                final result = await
-                Navigator.of(context, rootNavigator: true)
+                final result = await Navigator.of(context, rootNavigator: true)
                     .push(fade(page: const NotificationAddScreen()));
 
                 if (result != null && result is NotificationServiceModel) {
@@ -55,8 +54,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   ),
                   Text(
                     'Add',
-                    style: blueStyle(context).copyWith(
-                        fontSize: 18, fontWeight: FontWeight.w400),
+                    style: blueStyle(context)
+                        .copyWith(fontSize: 18, fontWeight: FontWeight.w400),
                   ),
                 ],
               ),
@@ -66,7 +65,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        child:             FutureBuilder<List<NotificationServiceModel>?>(
+        child: FutureBuilder<List<NotificationServiceModel>?>(
           future: DatabaseHelper.getNotificationServices(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
@@ -75,25 +74,20 @@ class _NotificationScreenState extends State<NotificationScreen> {
               return Text(snapshot.error.toString());
             } else if (snapshot.hasData) {
               if (snapshot.data != null && snapshot.data!.isNotEmpty) {
-
-                return Expanded(
-                  child: ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      return NotificationItem(
-                        model: snapshot.data![index],
-                      );
-                    },
-
-                  ),
+                return ListView.builder(
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, index) {
+                    return NotificationItem(
+                      model: snapshot.data![index],
+                    );
+                  },
                 );
-
               } else {
                 return Center(
                   child: Text(
                     'Notifications not found',
-                    style: darkStyle(context).copyWith(
-                        fontSize: 16, fontWeight: FontWeight.w600),
+                    style: darkStyle(context)
+                        .copyWith(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 );
               }
@@ -108,7 +102,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
             }
           },
         ),
-
       ),
     );
   }
